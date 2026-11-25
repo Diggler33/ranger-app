@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ranger App</title>
+<meta name="description" content="Keswick Red Squirrel Group – record ranger visits">
+<meta name="theme-color" content="#24452c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ranger">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <img src="icons/icon-192.png" alt="" width="36" height="36">
+    <div><h1>Ranger App</h1><p>Keswick Red Squirrel Group</p></div>
+  </div>
+  <button id="syncBadge" class="badge" type="button">…</button>
+</header>
+
+<main>
+  <!-- ============ RECORD ============ -->
+  <section id="page-record" class="page">
+    <form id="visitForm" novalidate autocomplete="off">
+      <div class="card">
+        <label class="field">
+          <span>Visit date</span>
+          <input type="date" name="visitDate" required>
+        </label>
+
+        <div class="field">
+          <span>Location</span>
+          <select name="location" id="locSelect" required></select>
+          <div class="loc-actions">
+            <button type="button" class="btn ghost" id="nearestBtn">📍 Nearest</button>
+            <button type="button" class="btn ghost" id="mapBtn">🗺️ Map</button>
+          </div>
+          <p class="hint" id="locHint"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <span>Method</span>
+          <div class="chips" id="methodChips" role="radiogroup" aria-label="Method"></div>
+        </div>
+        <div class="field">
+          <span>Funds Method</span>
+          <div class="chips" id="fundsChips" role="radiogroup" aria-label="Funds Method">
+            <button type="button" data-v="No">No</button>
+            <button type="button" data-v="Yes">Yes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Squirrels</h2>
+        <div class="count red"><span>🐿️ Reds</span><div class="stepper" data-f="reds"></div></div>
+        <div class="count"><span>Grey male</span><div class="stepper" data-f="greyMale"></div></div>
+        <div class="count"><span>Grey female</span><div class="stepper" data-f="greyFemale"></div></div>
+        <div class="count"><span>Grey unknown</span><div class="stepper" data-f="greyUnknown"></div></div>
+        <p class="total">Total greys: <b id="totalGreys">0</b></p>
+      </div>
+
+      <div class="card">
+        <div class="count"><span>Hours worked</span><div class="stepper" data-f="hours" data-step="0.5"></div></div>
+        <label class="field">
+          <span>Notes</span>
+          <textarea name="notes" rows="3" placeholder="Anything worth knowing…"></textarea>
+        </label>
+      </div>
+
+      <p class="error" id="formError" hidden></p>
+      <button type="submit" class="btn primary big">Save visit</button>
+      <button type="button" class="btn link" id="clearBtn">Clear form</button>
+    </form>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section id="page-history" class="page" hidden>
+    <div class="card summary" id="summary"></div>
+    <div class="row-actions">
+      <button type="button" class="btn" id="sendNowBtn">⟳ Send now</button>
+      <button type="button" class="btn" id="exportBtn">⬇ Export CSV</button>
+    </div>
+    <ul class="history" id="historyList"></ul>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="page-settings" class="page" hidden>
+    <div class="card">
+      <h2>You</h2>
+      <label class="field"><span>Your name</span>
+        <input name="ranger" id="rangerName" list="userList" placeholder="e.g. Ben Palmer" autocomplete="name">
+        <datalist id="userList"></datalist>
+      </label>
+      <label class="field"><span>Email (optional)</span>
+        <input name="email" id="rangerEmail" type="email" inputmode="email" autocomplete="email">
+      </label>
+      <button type="button" class="btn primary" id="saveMeBtn">Save</button>
+    </div>
+
+    <div class="card">
+      <h2>Group sheet</h2>
+      <p class="hint" id="connStatus"></p>
+      <label class="field"><span>Setup code</span>
+        <textarea id="setupCode" rows="2" placeholder="Paste the setup code you were sent"></textarea>
+      </label>
+      <div class="row-actions">
+        <button type="button" class="btn primary" id="applyCodeBtn">Connect</button>
+        <button type="button" class="btn" id="refreshBtn">Refresh lists</button>
+      </div>
+      <details>
+        <summary>Advanced / organiser</summary>
+        <label class="field"><span>Web app URL</span><input id="apiUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec"></label>
+        <label class="field"><span>Access code</span><input id="apiKey"></label>
+        <div class="row-actions">
+          <button type="button" class="btn" id="saveConnBtn">Save &amp; test</button>
+          <button type="button" class="btn" id="shareSetupBtn">Share setup with rangers</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>About</h2>
+      <p class="hint">Visits are saved on this phone first, then sent to the group sheet when there's signal. Nothing is lost if you're out of range – just open the app again later.</p>
+      <p class="hint" id="aboutInfo"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button type="button" data-page="record" class="on"><span>＋</span>Record</button>
+  <button type="button" data-page="history"><span>☰</span>Visits</button>
+  <button type="button" data-page="settings"><span>⚙</span>Settings</button>
+</nav>
+
+<!-- ============ MAP ============ -->
+<div id="mapModal" class="modal" hidden>
+  <div class="modal-bar">
+    <button type="button" class="btn ghost" id="mapClose">✕ Close</button>
+    <b>Choose location</b>
+    <button type="button" class="btn ghost" id="mapLocate">◎ Me</button>
+  </div>
+  <div id="map"></div>
+  <div class="sheet" id="mapInfo"></div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="osgrid.js?v=1"></script>
+<script src="locations.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
