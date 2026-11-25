@@ -442,7 +442,7 @@
     $('#connStatus').innerHTML = !state.settings.api
       ? '⚠️ Not connected. Visits are kept on this phone until you paste the setup code from your group organiser.'
       : `✅ Connected${c && c.fetchedAt ? ` · lists updated ${esc(ukDateTime(c.fetchedAt).slice(0, 16))}` : ''}${lastError ? `<br>Last problem: ${esc(lastError)}` : ''}`;
-    $('#aboutInfo').textContent = `${state.records.length} visit(s) on this phone · ${locations.length} locations · version 2`;
+    $('#aboutInfo').textContent = `${state.records.length} visit(s) on this phone · ${locations.length} locations · version 3`;
   }
   function wireSettings() {
     $('#saveMeBtn').addEventListener('click', () => {
