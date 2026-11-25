@@ -345,7 +345,9 @@
       if (manual) toast(`Connected ✓ ${state.config.locations.length} locations`, 'ok');
       return true;
     } catch (e) {
-      if (manual) toast(`Could not reach the sheet: ${e.message}`, 'err', 5000);
+      if (manual) toast(/access code/i.test(e.message)
+        ? 'The setup code was read, but the Google Sheet did not accept its access code. The organiser should check ACCESS_CODE in Apps Script and send a fresh setup code.'
+        : `Could not reach the sheet: ${e.message}`, 'err', 8000);
       renderSettings(); return false;
     }
   }
@@ -407,13 +409,25 @@
   // ---------------------------------------------------------------- settings page
   const CODE_PREFIX = 'RANGER1:';
   function makeSetupCode() { return CODE_PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify({ api: state.settings.api, key: state.settings.key })))); }
-  function readSetupCode(code) {
-    const m = String(code || '').trim().match(/RANGER1:([A-Za-z0-9+/=_-]+)/);
-    if (!m) return null;
-    try {
-      const o = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
-      return o && /^https:\/\//.test(o.api) ? { api: String(o.api), key: String(o.key || '') } : null;
-    } catch (e) { return null; }
+  // Forgiving: accepts the code alone, the whole setup message, or the setup link (URL-encoded),
+  // even when a messaging app has split the code across lines.
+  function readSetupCode(text) {
+    let s = String(text || '');
+    for (let i = 0; i < 2 && /%[0-9A-F]{2}/i.test(s); i++) { try { s = decodeURIComponent(s); } catch (e) { break; } }
+    const at = s.search(/RANGER1\s*:/i);
+    if (at < 0) return null;
+    // the code runs on (across line breaks) until a character that cannot be part of it
+    const body = (s.slice(at).replace(/^RANGER1\s*:/i, '').match(/^[A-Za-z0-9+/=_\-\s​-‍﻿]+/) || [''])[0]
+      .replace(/[\s​-‍﻿]+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+    // if words followed the code on the next line they got joined on; try shorter lengths until it reads
+    for (let n = body.length; n >= Math.max(8, body.length - 80); n--) {
+      try {
+        const chunk = body.slice(0, n);
+        const o = JSON.parse(decodeURIComponent(escape(atob(chunk + '='.repeat((4 - chunk.length % 4) % 4)))));
+        if (o && /^https:\/\//.test(o.api)) return { api: String(o.api).trim(), key: String(o.key || '').trim() };
+      } catch (e) { /* try a shorter length */ }
+    }
+    return null;
   }
   async function connect(api, key) {
     state.settings.api = api.trim(); state.settings.key = key.trim(); save();
@@ -428,7 +442,7 @@
     $('#connStatus').innerHTML = !state.settings.api
       ? '⚠️ Not connected. Visits are kept on this phone until you paste the setup code from your group organiser.'
       : `✅ Connected${c && c.fetchedAt ? ` · lists updated ${esc(ukDateTime(c.fetchedAt).slice(0, 16))}` : ''}${lastError ? `<br>Last problem: ${esc(lastError)}` : ''}`;
-    $('#aboutInfo').textContent = `${state.records.length} visit(s) on this phone · ${locations.length} locations · version 1`;
+    $('#aboutInfo').textContent = `${state.records.length} visit(s) on this phone · ${locations.length} locations · version 2`;
   }
   function wireSettings() {
     $('#saveMeBtn').addEventListener('click', () => {

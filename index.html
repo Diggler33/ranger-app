@@ -14,7 +14,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="app.css?v=1">
+<link rel="stylesheet" href="app.css?v=2">
 </head>
 <body>
 <header class="top">
@@ -111,7 +111,7 @@
       <h2>Group sheet</h2>
       <p class="hint" id="connStatus"></p>
       <label class="field"><span>Setup code</span>
-        <textarea id="setupCode" rows="2" placeholder="Paste the setup code you were sent"></textarea>
+        <textarea id="setupCode" rows="2" placeholder="Paste the setup code (or the whole message) you were sent" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
       </label>
       <div class="row-actions">
         <button type="button" class="btn primary" id="applyCodeBtn">Connect</button>
@@ -120,7 +120,7 @@
       <details>
         <summary>Advanced / organiser</summary>
         <label class="field"><span>Web app URL</span><input id="apiUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec"></label>
-        <label class="field"><span>Access code</span><input id="apiKey"></label>
+        <label class="field"><span>Access code</span><input id="apiKey" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
         <div class="row-actions">
           <button type="button" class="btn" id="saveConnBtn">Save &amp; test</button>
           <button type="button" class="btn" id="shareSetupBtn">Share setup with rangers</button>
@@ -156,8 +156,8 @@
 <div id="toast" class="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="osgrid.js?v=1"></script>
-<script src="locations.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="osgrid.js?v=2"></script>
+<script src="locations.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

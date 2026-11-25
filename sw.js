@@ -1,7 +1,7 @@
 // Keeps the Ranger App working with no signal: the app files are cached on the phone.
 // Bump VERSION whenever any app file changes so phones pick up the new copy.
-const VERSION = 'ranger-v1';
-const LOCAL = ['./', 'index.html', 'app.css?v=1', 'osgrid.js?v=1', 'locations.js?v=1', 'app.js?v=1', 'manifest.webmanifest',
+const VERSION = 'ranger-v2';
+const LOCAL = ['./', 'index.html', 'app.css?v=2', 'osgrid.js?v=2', 'locations.js?v=2', 'app.js?v=2', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const CDN = ['https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
